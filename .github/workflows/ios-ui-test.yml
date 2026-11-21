@@ -1,0 +1,59 @@
+name: iOS UI test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  analyze-does-not-crash:
+    name: Analyze (${{ matrix.variant }}, ${{ matrix.device }}, Swift ${{ matrix.swift }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [current, before-fix]
+        device: [iPhone, iPad]
+        swift: ["5.0", "6.0"]
+    continue-on-error: ${{ matrix.variant == 'before-fix' }}
+    env:
+      APP_SWIFT_VERSION: ${{ matrix.swift }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pick app sources
+        run: |
+          mkdir -p "$RUNNER_TEMP/app"
+          cp Sources/MyApp.swift "$RUNNER_TEMP/app/"
+          if [ "${{ matrix.variant }}" = "before-fix" ]; then
+            git show f62806f:Sources/ContentView.swift > "$RUNNER_TEMP/app/ContentView.swift"
+          else
+            cp Sources/ContentView.swift "$RUNNER_TEMP/app/"
+          fi
+          echo "APP_SOURCES=$RUNNER_TEMP/app" >> "$GITHUB_ENV"
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          cd ci && xcodegen generate
+
+      - name: Run UI test in the iOS Simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          prefix = sys.argv[1]
+          for runtime, devs in json.load(sys.stdin)["devices"].items():
+              if "iOS" not in runtime: continue
+              for d in devs:
+                  if d["name"].startswith(prefix):
+                      print(d["udid"], file=sys.stdout); print(d["name"], runtime, file=sys.stderr); sys.exit(0)
+          sys.exit(1)' "${{ matrix.device }}")
+          cd ci
+          set -o pipefail
+          xcodebuild test \
+            -project LinguAlyzer.xcodeproj \
+            -scheme LinguAlyzer \
+            -destination "id=$UDID" \
+            | tail -120
