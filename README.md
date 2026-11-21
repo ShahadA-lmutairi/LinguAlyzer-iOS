@@ -1,102 +1,146 @@
-<p align="center">
-  <img src="Assets/AppIcon-1024.png" width="140" alt="LinguAlyzer app icon">
-</p>
+<div align="center">
+
+<a href="Assets/AppIcon-1024.png"><img src="Assets/AppIcon-1024.png" width="128" alt="LinguAlyzer app icon"></a>
 
 # LinguAlyzer
 
 **Language. Culture. Intelligence.**
 
-An iOS app (SwiftUI) that helps a reviewer check an Arabic translation against its English source. It catches the things that are easy to miss by hand, and leaves the judgment to a human.
+A review companion for English → Arabic localization, built for iPhone and iPad with SwiftUI.
 
-It started as a Python project: <https://github.com/ShahadA-lmutairi/LinguAlyzer>, which has a **live web version** you can try now: <https://lingualyzer-j46qnmpej563zcfh79exbv.streamlit.app>. This repo is the iOS version, built for iPhone and iPad.
+![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20iPadOS%2017%2B-0D594D)
+![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift&logoColor=white)
+![UI](https://img.shields.io/badge/UI-SwiftUI-0D594D)
+![Privacy](https://img.shields.io/badge/data-on--device%20only-DBF0E6)
+![License](https://img.shields.io/badge/license-MIT-647575)
 
-<p align="center">
-  <img src="screenshots/01-analyze.png" width="720" alt="Analyze screen running on iPad">
-</p>
+[Live web version](https://lingualyzer-j46qnmpej563zcfh79exbv.streamlit.app) ·
+[Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer) ·
+[How the checks work](docs/HOW_IT_WORKS.md) ·
+[Design notes](docs/DESIGN.md)
 
-*The Analyze screen, running on my iPad.*
+</div>
 
-## Why I built it
+---
 
-I study translation and localization. When I review Arabic text, the same small problems show up again and again: a glossary term that was changed, a number that doesn't match, a `{name}` placeholder that disappeared, or a phrase that reads like a word-for-word copy of the English. A tool can catch these in seconds, so the reviewer can spend their time on meaning, tone, and culture.
+## Overview
 
-## What it checks
+LinguAlyzer checks an Arabic translation against its English source. It catches the mechanical issues that are easy to miss by hand — a changed glossary term, a mismatched number, a missing `{name}` placeholder, a literal word-for-word phrase — and leaves the judgment on meaning, tone, and culture to a human reviewer.
+
+It started as a [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer) with a [live web version](https://lingualyzer-j46qnmpej563zcfh79exbv.streamlit.app). This repository is the native iOS version.
+
+<div align="center">
+  <a href="screenshots/ipad-analyze.png">
+    <img src="screenshots/ipad-analyze.png" width="760" alt="LinguAlyzer Analyze screen running on iPad">
+  </a>
+  <br>
+  <sub><i>The Analyze screen running on iPad (real device screenshot). Click to open full size.</i></sub>
+</div>
+
+## Features
 
 | Check | What it looks for |
 |---|---|
-| Terminology | English glossary terms in the source that are missing their approved Arabic term |
-| Numbers | Digits that differ between source and target (Arabic-Indic digits are normalized first) |
-| Placeholders | `{name}`, `%s`, `%1$@` and `<b>` style tokens that don't match |
-| Script | Share of Arabic letters, to spot text left untranslated |
-| Length | Target much shorter or longer than the source |
-| Phrasing | Common literal patterns such as `بواسطة`, `قام بـ`, `يتم` |
-| Punctuation | Latin `? ; ,` used inside Arabic text |
-| Spacing | Double spaces |
+| **Terminology** | English glossary terms in the source that are missing their approved Arabic term |
+| **Numbers** | Digits that differ between source and target (Arabic-Indic digits are normalized first) |
+| **Placeholders** | `{name}`, `%s`, `%1$@` and `<b>` style tokens that don't match |
+| **Script** | Share of Arabic letters, to spot text left untranslated |
+| **Length** | Target much shorter or longer than the source |
+| **Phrasing** | Common literal patterns such as `بواسطة`, `قام بـ`, `يتم` |
+| **Punctuation** | Latin `? ; ,` used inside Arabic text |
+| **Spacing** | Double spaces |
 
-Each result is shown with a short reason. For phrasing and punctuation, the reviewer can **accept or reject** a suggested replacement, and the accepted ones are applied to produce a revised text.
+Every finding comes with a short reason. For phrasing and punctuation, the reviewer can **accept or reject** each suggested replacement; accepted changes are applied to produce a revised text that can be copied along with a report.
 
-## Important note
+> [!NOTE]
+> The score (100 minus penalties) is a **rule-based screening indicator**, not a translation-quality score. It does not judge meaning, tone, dialect, or cultural fit — a qualified human reviewer makes the final decision. All processing happens on the device; no text is sent anywhere.
 
-The score (100 minus penalties) is a **rule-based screening indicator**, not a translation-quality score. It does not judge meaning, tone, dialect, or cultural fit. A qualified human reviewer makes the final decision. Everything runs on the device and no text is sent anywhere.
+## Interface
 
-## Interface (design preview)
+<div align="center">
+  <a href="docs/design-preview/00-overview.png">
+    <img src="docs/design-preview/00-overview.png" alt="Design preview of the six main screens">
+  </a>
+</div>
 
-<p align="center">
-  <img src="docs/design-preview/00-overview.png" alt="Design preview of the six main screens">
-</p>
+<table>
+  <tr>
+    <td align="center" width="33%"><a href="docs/design-preview/01-analyze.png"><img src="docs/design-preview/01-analyze.png" width="220" alt="Analyze"></a><br><b>Analyze</b><br><sub>Paste source and Arabic target, run the checks</sub></td>
+    <td align="center" width="33%"><a href="docs/design-preview/02-result.png"><img src="docs/design-preview/02-result.png" width="220" alt="Result"></a><br><b>Result</b><br><sub>Screening score and findings with reasons</sub></td>
+    <td align="center" width="33%"><a href="docs/design-preview/03-suggestions.png"><img src="docs/design-preview/03-suggestions.png" width="220" alt="Suggestions"></a><br><b>Suggestions</b><br><sub>Accept or reject, copy revised text and report</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/design-preview/04-glossary.png"><img src="docs/design-preview/04-glossary.png" width="220" alt="Glossary"></a><br><b>Glossary</b><br><sub>Add and remove approved English–Arabic terms</sub></td>
+    <td align="center"><a href="docs/design-preview/05-history.png"><img src="docs/design-preview/05-history.png" width="220" alt="History"></a><br><b>History</b><br><sub>Past reviews, saved on the device</sub></td>
+    <td align="center"><a href="docs/design-preview/06-about.png"><img src="docs/design-preview/06-about.png" width="220" alt="About"></a><br><b>About</b><br><sub>What the app does and does not do</sub></td>
+  </tr>
+</table>
 
-These are design previews that follow the SwiftUI code (same colors, layout, and text). They are not screenshots from a device. The real screenshot above is from my iPad.
+<sub>These are design previews that follow the SwiftUI code (same colors, layout, and text), not device screenshots. Click any screen to open it full size.</sub>
 
-## Screens
+## Getting started
 
-- **Analyze:** paste source and Arabic target, run the checks
-- **Suggestions:** accept or reject each suggestion, copy the revised text and a report
-- **Glossary:** add and remove approved English-Arabic terms
-- **History:** past reviews, saved on the device
-- **About:** what the app does and does not do
+**Requirements:** iOS / iPadOS 17 or later.
 
-## Run it
+<details open>
+<summary><b>Swift Playgrounds (iPad)</b></summary>
 
-**Swift Playgrounds (iPad), what I use:**
 1. Create a new **App** playground.
-2. Replace everything in `ContentView.swift` with `Sources/ContentView.swift`.
+2. Replace the contents of `ContentView.swift` with [`Sources/ContentView.swift`](Sources/ContentView.swift).
 3. Leave `MyApp.swift` as it is.
-4. In App Settings, set the minimum iOS version to 17.
-5. Press Run.
+4. In **App Settings**, set the minimum iOS version to 17.
+5. Press **Run**.
 
-**Xcode (Mac):**
-1. Create a new iOS App project (SwiftUI), minimum iOS 17.
-2. Add `Sources/ContentView.swift` and `Sources/MyApp.swift`, replacing the defaults.
-3. Use `Assets/AppIcon-1024.png` as the app icon.
+</details>
+
+<details>
+<summary><b>Xcode (Mac)</b></summary>
+
+1. Create a new iOS App project (SwiftUI), minimum deployment target iOS 17.
+2. Add [`Sources/ContentView.swift`](Sources/ContentView.swift) and [`Sources/MyApp.swift`](Sources/MyApp.swift), replacing the defaults.
+3. Use [`Assets/AppIcon-1024.png`](Assets/AppIcon-1024.png) as the app icon.
 4. Run on a simulator or a device.
+
+</details>
+
+## Project structure
+
+```
+LinguAlyzer-iOS/
+├── Sources/
+│   ├── ContentView.swift      Models, Analyzer rules, store, and all screens
+│   └── MyApp.swift            App entry point
+├── Assets/
+│   └── AppIcon-1024.png       App icon (1024 px)
+├── docs/
+│   ├── HOW_IT_WORKS.md        How each check and the score work
+│   ├── DESIGN.md              Colors, type, icon, principles
+│   ├── README.pdf             Printable project summary
+│   └── design-preview/        Design previews of each screen
+└── screenshots/
+    └── ipad-analyze.png       Real screenshot from iPad
+```
 
 ## Project status
 
-This is a work in progress, and I want to be upfront about where it stands.
+This is a work in progress.
 
-- The interface, navigation, Glossary and About screens run on iPad.
-- **Known issue:** in Swift Playgrounds on iPad, the app closes when I press *Analyze text* ("Unknown Crash"). I couldn't read a crash log yet, so I am narrowing it down by removing parts one by one. I haven't tested it on a Mac or in the iOS Simulator.
-- The analysis logic itself is plain Swift (`Analyzer` in `ContentView.swift`) and is easy to test separately.
+- ✅ Interface, navigation, Glossary, and About screens run on iPad.
+- ⚠️ **Known issue:** in Swift Playgrounds on iPad, the app closes when *Analyze text* is pressed ("Unknown Crash"). I'm narrowing it down by isolating parts of the code. Not yet tested on a Mac or in the iOS Simulator.
+- ℹ️ The analysis logic is plain Swift (`Analyzer` in `ContentView.swift`) and can be tested separately.
 
-## Structure
+## Roadmap
 
-```
-Sources/
-  ContentView.swift   models, Analyzer rules, store, and all screens
-  MyApp.swift         app entry point
-Assets/               app icon (1024 px)
-docs/                 how the checks work, design notes
-screenshots/
-```
-
-## What I would do next
-
-- Fix the crash and add unit tests for `Analyzer`
-- On-device semantic similarity (Core ML), tested with Arabic reviewers
-- Register and tone checks for formal text
-- Termbase import (TBX / CSV)
-- Try it with real reviewers and collect feedback
+- [ ] Fix the Analyze crash and add unit tests for `Analyzer`
+- [ ] On-device semantic similarity (Core ML), validated with Arabic reviewers
+- [ ] Register and tone checks for formal text
+- [ ] Termbase import (TBX / CSV)
+- [ ] User testing with professional reviewers
 
 ## Author
 
-Shahad, translation and localization student, Saudi Arabia.
+**Shahad** — Translation and Localization student, Saudi Arabia.
+
+## License
+
+Released under the [MIT License](LICENSE).
