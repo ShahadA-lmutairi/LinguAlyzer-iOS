@@ -156,7 +156,7 @@ LinguAlyzer-iOS/
 
 ## Author
 
-**Shahad** — Translation and Localization student, Saudi Arabia.
+**Shahad**, applied linguist (M.A. Applied Linguistics) working on Arabic NLP, localization and data, Saudi Arabia.
 
 ## License
 
