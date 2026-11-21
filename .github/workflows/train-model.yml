@@ -1,0 +1,38 @@
+name: Train phrasing model
+
+on:
+  pull_request:
+    paths:
+      - "data/phrasing/**"
+      - "ci/train/**"
+      - ".github/workflows/train-model.yml"
+  push:
+    branches: [main]
+    paths:
+      - "data/phrasing/**"
+      - "ci/train/**"
+  workflow_dispatch:
+
+jobs:
+  train:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Train and evaluate
+        run: |
+          set -o pipefail
+          swift ci/train/TrainPhrasingModel.swift data/phrasing/phrasing.csv out/PhrasingClassifier.mlmodel | tee out-train.log
+
+      - name: Add results to the job summary
+        if: always()
+        run: |
+          echo '## Phrasing model' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat out-train.log >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhrasingClassifier
+          path: out/PhrasingClassifier.mlmodel
