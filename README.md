@@ -138,10 +138,10 @@ LinguAlyzer-iOS/
 
 ## Project status
 
-- ✅ All screens run on iPad in Swift Playgrounds: Analyze, Suggestions, Glossary, History, and About.
-- ✅ The full Analyze flow works: an earlier crash when pressing *Analyze text* has been fixed.
-- ✅ Automated tests run on iPhone and iPad simulators (Swift 5 and 6) on every pull request: unit tests for the Arabic NLP and the analyzer, plus a UI test that taps *Sample*, then *Analyze text*, and checks the result appears.
-- ℹ️ The analysis logic is plain Swift (`Analyzer` in `ContentView.swift`) and can be tested separately.
+- ✅ All screens run on iPad: Analyze, Suggestions, Glossary, History, and About.
+- ✅ The Analyze flow works: an earlier crash when pressing *Analyze text* has been fixed.
+- ✅ Arabic NLP with Apple's NaturalLanguage framework: term matching, language detection and sentence checks, covered by 12 unit tests.
+- ✅ Automated tests run on iPhone and iPad simulators (Swift 5 and 6) on every pull request, including a UI test that taps *Sample*, then *Analyze text*, and checks the result appears.
 
 ## Roadmap
 
@@ -156,7 +156,7 @@ LinguAlyzer-iOS/
 
 ## Author
 
-**Shahad** — Translation and Localization student, Saudi Arabia.
+**Shahad**, applied linguist (M.A. Applied Linguistics) working on Arabic NLP, localization and data, Saudi Arabia.
 
 ## License
 
