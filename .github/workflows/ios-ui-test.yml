@@ -1,0 +1,48 @@
+name: iOS UI test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  analyze-does-not-crash:
+    name: Analyze (${{ matrix.variant }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [current, before-fix]
+    continue-on-error: ${{ matrix.variant == 'before-fix' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pick app sources
+        run: |
+          mkdir -p "$RUNNER_TEMP/app"
+          cp Sources/MyApp.swift "$RUNNER_TEMP/app/"
+          if [ "${{ matrix.variant }}" = "before-fix" ]; then
+            git show f62806f:Sources/ContentView.swift > "$RUNNER_TEMP/app/ContentView.swift"
+          else
+            cp Sources/ContentView.swift "$RUNNER_TEMP/app/"
+          fi
+          echo "APP_SOURCES=$RUNNER_TEMP/app" >> "$GITHUB_ENV"
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          cd ci && xcodegen generate
+
+      - name: Run UI test in the iOS Simulator
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -oE 'iPhone [0-9]+( Pro)?')
+          echo "Using simulator: $DEVICE"
+          cd ci
+          set -o pipefail
+          xcodebuild test \
+            -project LinguAlyzer.xcodeproj \
+            -scheme LinguAlyzer \
+            -destination "platform=iOS Simulator,name=$DEVICE" \
+            | tail -80
