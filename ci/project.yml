@@ -33,6 +33,17 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.lingualyzer.uitests
         GENERATE_INFOPLIST_FILE: "YES"
         TEST_TARGET_NAME: LinguAlyzer
+  LinguAlyzerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: UnitTests
+    dependencies:
+      - target: LinguAlyzer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.lingualyzer.tests
+        GENERATE_INFOPLIST_FILE: "YES"
 schemes:
   LinguAlyzer:
     build:
@@ -40,4 +51,5 @@ schemes:
         LinguAlyzer: all
     test:
       targets:
+        - LinguAlyzerTests
         - LinguAlyzerUITests

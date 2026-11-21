@@ -42,7 +42,7 @@ It started as a [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer
 
 | Check | What it looks for |
 |---|---|
-| **Terminology** | English glossary terms in the source that are missing their approved Arabic term |
+| **Terminology** | English glossary terms in the source that are missing their approved Arabic term. Arabic matching uses NLP, so «إعدادات», «بالإعدادات» and «الإعدادات» all count as the same term |
 | **Numbers** | Digits that differ between source and target (Arabic-Indic digits are normalized first) |
 | **Placeholders** | `{name}`, `%s`, `%1$@` and `<b>` style tokens that don't match |
 | **Script** | Share of Arabic letters, to spot text left untranslated |
@@ -50,6 +50,18 @@ It started as a [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer
 | **Phrasing** | Common literal patterns such as `بواسطة`, `قام بـ`, `يتم` |
 | **Punctuation** | Latin `? ; ,` used inside Arabic text |
 | **Spacing** | Double spaces |
+| **Language** | Detects the target's language with Apple's NaturalLanguage framework and flags text that isn't Arabic |
+| **Sentences** | Compares sentence counts between source and target to catch a missing sentence |
+
+### Arabic NLP
+
+The analyzer uses Apple's **NaturalLanguage** framework, on the device, to handle Arabic properly:
+
+- **Tokenization** with `NLTokenizer` (words and sentences).
+- **Normalization** for Arabic spelling variants: tashkeel and tatweel removed, alef forms (أ إ آ) unified, taa marbuta and alef maqsura unified, the definite article (ال، بال، وال، لل…) and one attached clitic (و ب ل ف ك) handled.
+- **Language identification** with `NLLanguageRecognizer`.
+
+This reduces false alarms in glossary checks, which used to need an exact character match.
 
 Every finding comes with a short reason. For phrasing and punctuation, the reviewer can **accept or reject** each suggested replacement; accepted changes are applied to produce a revised text that can be copied along with a report.
 
@@ -128,12 +140,14 @@ LinguAlyzer-iOS/
 
 - ✅ All screens run on iPad in Swift Playgrounds: Analyze, Suggestions, Glossary, History, and About.
 - ✅ The full Analyze flow works: an earlier crash when pressing *Analyze text* has been fixed.
-- ✅ An automated UI test runs on iPhone and iPad simulators (Swift 5 and 6) on every change: it taps *Sample*, then *Analyze text*, and checks the result appears.
+- ✅ Automated tests run on iPhone and iPad simulators (Swift 5 and 6) on every pull request: unit tests for the Arabic NLP and the analyzer, plus a UI test that taps *Sample*, then *Analyze text*, and checks the result appears.
 - ℹ️ The analysis logic is plain Swift (`Analyzer` in `ContentView.swift`) and can be tested separately.
 
 ## Roadmap
 
-- [ ] Add unit tests for `Analyzer`
+- [x] Unit tests for the Arabic NLP and `Analyzer`
+- [ ] On-device rewrite suggestions with Apple's Foundation Models
+- [ ] Back-translation check with Apple's Translation framework
 - [ ] On-device semantic similarity (Core ML), validated with Arabic reviewers
 - [ ] Register and tone checks for formal text
 - [ ] Termbase import (TBX / CSV)

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import NaturalLanguage
 
 // MARK: - Theme
 
@@ -108,6 +109,89 @@ extension String {
     var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
 }
 
+// MARK: - Arabic NLP
+
+/// Arabic-aware text helpers built on Apple's NaturalLanguage framework.
+/// Everything runs on the device.
+enum ArabicText {
+    private static let diacritics: ClosedRange<UInt32> = 0x064B...0x0652   // tashkeel
+    private static let definitePrefixes = ["وبال", "وال", "بال", "فال", "كال", "لل", "ال"]
+    private static let clitics: Set<Character> = ["و", "ب", "ل", "ف", "ك"]
+
+    /// Normalizes one Arabic word so that spelling variants compare equal:
+    /// removes tashkeel and tatweel, unifies alef forms, taa marbuta and alef maqsura,
+    /// and strips a leading definite article (with its attached prepositions).
+    static func normalize(_ word: String) -> String {
+        let kept = word.unicodeScalars.filter { scalar in
+            !diacritics.contains(scalar.value) && scalar.value != 0x0670 && scalar.value != 0x0640
+        }
+        var w = String(String.UnicodeScalarView(kept))
+        w = w.replacingOccurrences(of: "[أإآٱ]", with: "ا", options: .regularExpression)
+        if w.hasSuffix("ة") { w = String(w.dropLast()) + "ه" }
+        if w.hasSuffix("ى") { w = String(w.dropLast()) + "ي" }
+        for prefix in definitePrefixes where w.hasPrefix(prefix) && w.count - prefix.count >= 2 {
+            w = String(w.dropFirst(prefix.count))
+            break
+        }
+        return w
+    }
+
+    /// Splits text into words with NLTokenizer and normalizes each one.
+    static func words(_ text: String) -> [String] {
+        let tokenizer = NLTokenizer(unit: .word)
+        tokenizer.string = text
+        var result: [String] = []
+        tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { range, _ in
+            let w = normalize(String(text[range]))
+            if !w.isEmpty { result.append(w) }
+            return true
+        }
+        return result
+    }
+
+    /// True when `term` (one or more words) appears in `text`, ignoring tashkeel,
+    /// hamza forms, the definite article and one attached clitic (و ب ل ف ك).
+    static func contains(term: String, in text: String) -> Bool {
+        let termWords = words(term)
+        guard !termWords.isEmpty else { return true }
+        let textWords = words(text)
+        guard textWords.count >= termWords.count else { return false }
+        for start in 0...(textWords.count - termWords.count) {
+            let window = (0..<termWords.count).allSatisfy { i in
+                matches(textWords[start + i], termWords[i])
+            }
+            if window { return true }
+        }
+        return false
+    }
+
+    private static func matches(_ token: String, _ term: String) -> Bool {
+        if token == term { return true }
+        if let first = token.first, clitics.contains(first), token.count - 1 >= 2 {
+            return normalize(String(token.dropFirst())) == term
+        }
+        return false
+    }
+
+    /// The most likely language of `text` and the recognizer's confidence (0...1).
+    static func dominantLanguage(_ text: String) -> (language: NLLanguage?, confidence: Double) {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+        guard let language = recognizer.dominantLanguage else { return (nil, 0) }
+        let confidence = recognizer.languageHypotheses(withMaximum: 1)[language] ?? 0
+        return (language, confidence)
+    }
+
+    /// Number of sentences, using NLTokenizer.
+    static func sentenceCount(_ text: String) -> Int {
+        let tokenizer = NLTokenizer(unit: .sentence)
+        tokenizer.string = text
+        return tokenizer.tokens(for: text.startIndex..<text.endIndex)
+            .filter { !text[$0].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .count
+    }
+}
+
 // MARK: - Analyzer
 
 enum Analyzer {
@@ -173,7 +257,7 @@ enum Analyzer {
             let en = term.english.trimmed
             let ar = term.arabic.trimmed
             if en.isEmpty || ar.isEmpty { continue }
-            if containsWord(en, in: source) && !target.contains(ar) {
+            if containsWord(en, in: source) && !ArabicText.contains(term: ar, in: target) {
                 findings.append(Finding(category: "Terminology",
                                         title: "Glossary term missing",
                                         detail: "\"\(en)\" should appear as «\(ar)».",
@@ -226,6 +310,16 @@ enum Analyzer {
                                     severity: .info))
         }
 
+        // 4b. Language detection (NaturalLanguage)
+        let detected = ArabicText.dominantLanguage(target)
+        if let language = detected.language, language != .arabic, detected.confidence >= 0.5 {
+            let name = Locale(identifier: "en").localizedString(forLanguageCode: language.rawValue) ?? language.rawValue
+            findings.append(Finding(category: "Language",
+                                    title: "Target may not be Arabic",
+                                    detail: "Detected \(name) (\(Int((detected.confidence * 100).rounded()))% confidence).",
+                                    severity: .warning))
+        }
+
         // 5. Length ratio
         let ratio = Double(target.count) / Double(max(source.count, 1))
         if ratio < 0.4 {
@@ -275,6 +369,16 @@ enum Analyzer {
             findings.append(Finding(category: "Spacing",
                                     title: "Double spaces",
                                     detail: "Remove the extra spaces.",
+                                    severity: .info))
+        }
+
+        // 8b. Sentence count (NaturalLanguage)
+        let sourceSentences = ArabicText.sentenceCount(source)
+        let targetSentences = ArabicText.sentenceCount(target)
+        if sourceSentences >= 2 && targetSentences < sourceSentences {
+            findings.append(Finding(category: "Sentences",
+                                    title: "Possible missing sentence",
+                                    detail: "Source has \(sourceSentences) sentences, target has \(targetSentences).",
                                     severity: .info))
         }
 

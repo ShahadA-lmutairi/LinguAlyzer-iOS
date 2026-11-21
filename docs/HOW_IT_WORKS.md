@@ -16,7 +16,7 @@ The score is a screening indicator only. A clean score does not mean a good tran
 
 ## Checks
 
-1. **Glossary.** For each term, the English word is matched in the source with word boundaries (case-insensitive). If it is found and the Arabic term is not in the target, a warning is added.
+1. **Glossary.** For each term, the English word is matched in the source with word boundaries (case-insensitive). If it is found and the Arabic term is not in the target, a warning is added. The Arabic side is matched with `ArabicText.contains(term:in:)`: both texts are tokenized with `NLTokenizer`, each word is normalized (tashkeel, alef forms, taa marbuta, alef maqsura, definite article), and one attached clitic (و ب ل ف ك) is allowed, so «بالإعدادات» matches «الإعدادات».
 2. **Numbers.** Arabic-Indic digits (٠-٩) are converted to 0-9, then numbers are extracted from both texts and compared. A difference is critical.
 3. **Placeholders.** Tokens like `{name}`, `%s`, `%1$@`, and `<b>` are extracted from both texts and compared. A difference is critical.
 4. **Arabic share.** The share of Arabic letters among all letters in the target. Below 85% adds a note, since names and brands can be intentionally Latin.
@@ -24,6 +24,8 @@ The score is a screening indicator only. A clean score does not mean a good tran
 6. **Phrasing.** A small list of literal-translation patterns, each with a reason and, when possible, a replacement.
 7. **Punctuation.** `?`, `;`, and `,` in the target, with the Arabic marks `؟ ؛ ،` as replacements. A comma between digits is ignored.
 8. **Spacing.** Double spaces.
+9. **Language.** `NLLanguageRecognizer` identifies the target's dominant language. If it is not Arabic (with at least 50% confidence), a warning is added.
+10. **Sentences.** `NLTokenizer` counts sentences in both texts. If the source has two or more sentences and the target has fewer, a note is added.
 
 ## Limits
 
