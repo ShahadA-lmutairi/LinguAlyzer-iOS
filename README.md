@@ -17,7 +17,8 @@ A review companion for English → Arabic localization, built for iPhone and iPa
 [Live web version](https://lingualyzer-j46qnmpej563zcfh79exbv.streamlit.app) ·
 [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer) ·
 [How the checks work](docs/HOW_IT_WORKS.md) ·
-[Design notes](docs/DESIGN.md)
+[Design notes](docs/DESIGN.md) ·
+[Figma design](https://www.figma.com/design/idQCoNNtCkRK26dG9iidO2)
 
 </div>
 
@@ -77,6 +78,8 @@ Every finding comes with a short reason. For phrasing and punctuation, the revie
 </table>
 
 <sub>These are design previews that follow the SwiftUI code (same colors, layout, and text), not device screenshots. Click any screen to open it full size.</sub>
+
+**Figma:** the full design is available as an editable Figma file, with all six screens, reusable components (buttons, tab bar, finding rows), color variables, and App Store screenshots. [Open in Figma →](https://www.figma.com/design/idQCoNNtCkRK26dG9iidO2)
 
 ## Getting started
 
