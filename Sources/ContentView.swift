@@ -146,10 +146,9 @@ enum Analyzer {
 
     private static func matches(in text: String, pattern: String) -> [String] {
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
-        let range = NSRange(text.startIndex..<text.endIndex, in: text)
-        return regex.matches(in: text, range: range).compactMap { match in
-            guard let r = Range(match.range, in: text) else { return nil }
-            return String(text[r])
+        let ns = text as NSString
+        return regex.matches(in: text, range: NSRange(location: 0, length: ns.length)).map { match in
+            ns.substring(with: match.range)
         }
     }
 
@@ -159,7 +158,7 @@ enum Analyzer {
         guard let regex = try? NSRegularExpression(pattern: wordPattern, options: [.caseInsensitive]) else {
             return text.lowercased().contains(word.lowercased())
         }
-        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        let range = NSRange(location: 0, length: (text as NSString).length)
         return regex.firstMatch(in: text, range: range) != nil
     }
 
@@ -670,7 +669,9 @@ struct AnalyzeView: View {
                     Text("Rule-based QA")
                         .font(.title3.bold())
                         .foregroundColor(Theme.ink)
-                    Text("\(review.findings.count) finding(s) · Arabic \(review.arabicPercent)%")
+                    // Verbatim: a literal "%" inside a localized, interpolated Text
+                    // becomes a broken format string ("...%lld%") and can crash.
+                    Text(verbatim: "\(review.findings.count) finding(s) · Arabic \(review.arabicPercent)%")
                         .font(.caption)
                         .foregroundColor(Theme.muted)
                 }

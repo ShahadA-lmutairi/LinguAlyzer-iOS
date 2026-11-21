@@ -126,12 +126,12 @@ LinguAlyzer-iOS/
 This is a work in progress.
 
 - ✅ Interface, navigation, Glossary, and About screens run on iPad.
-- ⚠️ **Known issue:** in Swift Playgrounds on iPad, the app closes when *Analyze text* is pressed ("Unknown Crash"). I'm narrowing it down by isolating parts of the code. Not yet tested on a Mac or in the iOS Simulator.
+- 🛠️ **Crash fix (needs testing):** the app used to close when *Analyze text* was pressed in Swift Playgrounds. The likely cause, a stray `%` in a localized result label that produced an invalid format string, has been fixed. Not yet confirmed on device, Mac, or Simulator.
 - ℹ️ The analysis logic is plain Swift (`Analyzer` in `ContentView.swift`) and can be tested separately.
 
 ## Roadmap
 
-- [ ] Fix the Analyze crash and add unit tests for `Analyzer`
+- [ ] Confirm the Analyze crash fix on device and add unit tests for `Analyzer`
 - [ ] On-device semantic similarity (Core ML), validated with Arabic reviewers
 - [ ] Register and tone checks for formal text
 - [ ] Termbase import (TBX / CSV)
