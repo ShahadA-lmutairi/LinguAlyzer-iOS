@@ -146,6 +146,7 @@ LinguAlyzer-iOS/
 ## Roadmap
 
 - [x] Unit tests for the Arabic NLP and `Analyzer`
+- [ ] On-device phrasing classifier trained with Create ML on a hand-annotated Arabic dataset ([`data/phrasing`](data/phrasing), [guidelines](data/phrasing/GUIDELINES.md))
 - [ ] On-device rewrite suggestions with Apple's Foundation Models
 - [ ] Back-translation check with Apple's Translation framework
 - [ ] On-device semantic similarity (Core ML), validated with Arabic reviewers
