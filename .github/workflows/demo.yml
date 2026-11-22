@@ -8,6 +8,9 @@ on:
       - ".github/workflows/demo.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   ios26:
     name: iOS 26 (Liquid Glass) tests and demo GIF
@@ -76,3 +79,15 @@ jobs:
           path: |
             demo.mp4
             demo.gif
+
+      - name: Publish the recording to the demo-assets branch
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pub" && cp demo.gif demo.mp4 "$RUNNER_TEMP/pub/"
+          cd "$RUNNER_TEMP/pub"
+          git init -q && git checkout -q -b demo-assets
+          git add demo.gif demo.mp4
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Demo recording for ${{ github.event.pull_request.head.sha || github.sha }}"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}" demo-assets
