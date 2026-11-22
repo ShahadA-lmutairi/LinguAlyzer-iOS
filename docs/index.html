@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinguAlyzer · UX/UI Case Study</title>
+<meta name="description" content="Designing a review companion for English to Arabic localization. UX/UI case study by Shahad Almutairi.">
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--forest:#0D594D;--forest-2:#0a3f37;--mint:#DBF0E6;--canvas:#F6F8F5;--ink:#142630;--muted:#647575;--line:#E0E8E0;--white:#fff;--red:#D93A2B;--orange:#E8890C}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--canvas);line-height:1.65;font-size:17px}
+img{max-width:100%;display:block}
+a{color:var(--forest);text-decoration:none;font-weight:600}
+a:hover{text-decoration:underline}
+.ar{font-family:"Noto Naskh Arabic","Noto Sans Arabic","Geeza Pro",Tahoma,serif;direction:rtl;unicode-bidi:isolate}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:10;background:rgba(246,248,245,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink)}
+.brand img{width:30px;height:30px;border-radius:8px}
+nav ul{display:flex;gap:22px;list-style:none;font-size:14px}
+nav ul a{color:var(--muted);font-weight:500}
+
+/* Hero */
+.hero{background:radial-gradient(900px 500px at 85% 0%,#1a7a68 0%,rgba(26,122,104,0) 60%),linear-gradient(160deg,var(--forest),var(--forest-2));color:#fff;padding:72px 0 0;overflow:hidden}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9fe2c9}
+.hero h1{font-size:clamp(34px,5.2vw,58px);line-height:1.08;letter-spacing:-.02em;margin:14px 0 18px;max-width:820px}
+.hero p.lead{font-size:clamp(17px,2vw,20px);color:#d4efe5;max-width:680px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:40px 0 48px;max-width:900px}
+.meta div{border-top:1px solid rgba(255,255,255,.25);padding-top:12px}
+.meta b{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#9fe2c9;margin-bottom:4px}
+.meta span{font-size:15px;color:#fff}
+.hero-shot{width:100%;max-width:1000px;margin:0 auto;border-radius:18px 18px 0 0;box-shadow:0 -10px 60px rgba(0,0,0,.35)}
+
+/* Sections */
+section{padding:84px 0}
+section+section{border-top:1px solid var(--line)}
+.num{font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--forest);text-transform:uppercase}
+h2{font-size:clamp(26px,3.4vw,38px);line-height:1.15;letter-spacing:-.015em;margin:8px 0 22px}
+h3{font-size:21px;margin:0 0 8px}
+p+p{margin-top:14px}
+.muted{color:var(--muted)}
+.narrow{max-width:760px}
+.quote{margin:30px 0 0;padding:22px 26px;border-left:4px solid var(--forest);background:#fff;border-radius:0 14px 14px 0;font-size:20px;font-weight:600}
+
+ul.list{margin:16px 0 0 20px}
+ul.list li{margin:6px 0}
+
+.pair{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:22px}
+.chip{border-radius:14px;padding:12px 18px;font-size:20px}
+.chip small{display:block;font:700 11px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;direction:ltr;text-align:left;opacity:.7}
+.bad{background:#fff;border:1.5px solid #f1b5ac}
+.good{background:var(--mint);border:1.5px solid var(--mint)}
+
+/* Cards / grids */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}
+.card .k{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--forest);margin-bottom:6px}
+.principle{display:flex;gap:14px;align-items:flex-start}
+.principle i{flex:none;width:34px;height:34px;border-radius:10px;background:var(--mint);color:var(--forest);display:grid;place-items:center;font-style:normal;font-weight:800}
+
+.tab{text-align:center}
+.tab .t{font-weight:700}
+.tab .d{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* Decision rows */
+.decision{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:48px;align-items:center;margin-top:56px}
+.decision:nth-of-type(even) .shot{order:-1}
+.shot img{max-width:300px;margin:0 auto;filter:drop-shadow(0 24px 36px rgba(20,38,48,.18))}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.badge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
+.b-c{background:rgba(217,58,43,.12);color:var(--red)}
+.b-r{background:rgba(232,137,12,.14);color:#b86a00}
+.b-n{background:rgba(100,117,117,.14);color:var(--muted)}
+
+/* Palette */
+.swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:22px}
+.sw{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.sw div{height:84px}
+.sw p{padding:10px 12px;font-size:13px;line-height:1.4}
+.sw b{display:block;font-size:14px}
+
+/* Screens */
+.screens{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;margin-top:28px}
+.screens figure{text-align:center;font-size:13px;color:var(--muted)}
+.screens img{margin-bottom:8px;filter:drop-shadow(0 12px 20px rgba(20,38,48,.15))}
+
+/* Table */
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line);margin-top:24px;font-size:15px}
+th,td{text-align:left;padding:16px 18px;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:#eef5f1;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--forest)}
+tr:last-child td{border-bottom:0}
+
+.next li{margin:10px 0}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fff3e0;color:#b86a00;margin-left:6px;vertical-align:middle}
+
+footer{background:var(--ink);color:#cfdcd8;padding:48px 0;font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{color:#9fe2c9}
+.links{display:flex;gap:18px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  nav ul{display:none}
+  .meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g2{grid-template-columns:minmax(0,1fr)}
+  .decision{grid-template-columns:minmax(0,1fr);gap:24px}
+  .decision:nth-of-type(even) .shot{order:0}
+  .swatches{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .screens{grid-template-columns:repeat(3,minmax(0,1fr))}
+  section{padding:64px 0}
+  table{font-size:14px}
+  th,td{padding:12px}
+}
+@media (max-width:520px){
+  .g3,.g5{grid-template-columns:minmax(0,1fr)}
+  .screens{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .table-wrap{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="brand" href="#"><img src="img/icon.png" alt="">LinguAlyzer</a>
+  <ul>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#visual">Visual design</a></li>
+    <li><a href="#iterations">Iterations</a></li>
+    <li><a href="#next">Next</a></li>
+  </ul>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">UX/UI Case Study</div>
+    <h1>Designing a review companion for English → Arabic localization</h1>
+    <p class="lead">An iPhone and iPad app that takes the mechanical checks off a translation reviewer's plate, without taking the judgment away from them.</p>
+    <div class="meta">
+      <div><b>Role</b><span>Solo: UX/UI design and iOS development</span></div>
+      <div><b>Platform</b><span>iPhone &amp; iPad, plus a web app</span></div>
+      <div><b>Tools</b><span>Figma, SwiftUI, NaturalLanguage</span></div>
+      <div><b>Author</b><span>Shahad Almutairi</span></div>
+    </div>
+  </div>
+  <img class="hero-shot" src="design-preview/00-overview.png" alt="The six main screens of LinguAlyzer">
+</header>
+
+<main>
+
+<section id="problem"><div class="wrap">
+  <div class="num">01 · The problem</div>
+  <h2>Small, mechanical errors take time away from real review</h2>
+  <div class="grid g2" style="gap:40px">
+    <div>
+      <p>Reviewing an Arabic translation is careful work, and most of it is not about meaning. The same problems come back again and again:</p>
+      <ul class="list">
+        <li>a glossary term translated differently from the approved one</li>
+        <li>a number that doesn't match the source</li>
+        <li>a <code>{name}</code> placeholder or <code>&lt;b&gt;</code> tag that disappeared</li>
+        <li>Latin punctuation <code>? ,</code> inside Arabic text</li>
+        <li>a sentence that is correct but reads like word-for-word English</li>
+      </ul>
+    </div>
+    <div>
+      <p>Each one is easy to miss by eye and quick for software to catch. Checking them by hand takes time away from what only a person can judge: meaning, tone and cultural fit.</p>
+      <p>Many QA tools also treat Arabic as an afterthought: they compare characters exactly, so «<span class="ar">إعدادات</span>» and «<span class="ar">الإعدادات</span>» look like two different words.</p>
+      <div class="pair">
+        <div class="chip bad ar"><small>Literal</small>قام المستخدم بتحديث الإعدادات</div>
+        <span aria-hidden="true">→</span>
+        <div class="chip good ar"><small>Natural</small>حدّث المستخدم الإعدادات</div>
+      </div>
+    </div>
+  </div>
+  <div class="quote">How might we take the mechanical checks off a reviewer's plate, without taking the judgment away from them?</div>
+</div></section>
+
+<section id="users"><div class="wrap">
+  <div class="num">02 · Who it's for</div>
+  <h2>A reviewer who needs a fast, honest first pass</h2>
+  <div class="grid g2">
+    <div class="card"><div class="k">Primary user</div><p>A reviewer checking an English → Arabic translation: a localization QA specialist, an editor, or a translator checking their own work before delivery.</p></div>
+    <div class="card"><div class="k">Context</div><p>Short UI strings (buttons, alerts, settings, onboarding), reviewed one at a time or in batches, often on an iPad or laptop between other tasks.</p></div>
+    <div class="card"><div class="k">Needs</div><p>A first pass that points at likely problems, explains <em>why</em>, and never makes the final call for them.</p></div>
+    <div class="card"><div class="k">Worries</div><p>A score that pretends to measure quality, tools that rewrite text silently, and client text leaving the device.</p></div>
+  </div>
+</div></section>
+
+<section id="principles"><div class="wrap">
+  <div class="num">03 · Design principles</div>
+  <h2>Five rules that drove every decision</h2>
+  <div class="grid g3">
+    <div class="card principle"><i>1</i><div><h3>The tool suggests, the reviewer decides</h3><p class="muted">Nothing changes without an explicit choice.</p></div></div>
+    <div class="card principle"><i>2</i><div><h3>Don't overclaim</h3><p class="muted">The score is a screening indicator, not a quality grade.</p></div></div>
+    <div class="card principle"><i>3</i><div><h3>Explain every flag</h3><p class="muted">No finding without a reason.</p></div></div>
+    <div class="card principle"><i>4</i><div><h3>Arabic is first-class</h3><p class="muted">Not a mirror of the English layout.</p></div></div>
+    <div class="card principle"><i>5</i><div><h3>Keep text on the device</h3><p class="muted">Translations are often confidential.</p></div></div>
+  </div>
+</div></section>
+
+<section id="ia"><div class="wrap">
+  <div class="num">04 · Information architecture</div>
+  <h2>One tab per step of the review</h2>
+  <div class="grid g5">
+    <div class="card tab"><div class="t">Analyze</div><div class="d">Paste source and target, run checks, see results in place</div></div>
+    <div class="card tab"><div class="t">Suggestions</div><div class="d">Accept or reject fixes, copy the revised text and a report</div></div>
+    <div class="card tab"><div class="t">Glossary</div><div class="d">Approved English → Arabic terms</div></div>
+    <div class="card tab"><div class="t">History</div><div class="d">Earlier reviews, saved on the device</div></div>
+    <div class="card tab"><div class="t">About</div><div class="d">What it checks, what it doesn't, privacy</div></div>
+  </div>
+  <p class="narrow muted" style="margin-top:22px">Results stay on the Analyze screen instead of a separate page, so the reviewer sees the text and its problems together and can edit and re-run without navigating.</p>
+</div></section>
+
+<section id="decisions"><div class="wrap">
+  <div class="num">05 · Key design decisions</div>
+  <h2>Small choices that build or break trust</h2>
+
+  <div class="decision">
+    <div>
+      <h3>A score that doesn't overclaim</h3>
+      <p>A single number helps triage, but it's dangerous if it reads as "this translation is 69% good". The card is labelled <b>Screening indicator · Rule-based QA</b>, the number sits in a ring rather than a big headline, and a line under the input says it is <em>not a measure of translation quality</em>.</p>
+      <p>The score is simple and explainable: 100 minus a fixed penalty per finding (Critical 20, Review 8, Note 3), so a reviewer can always see where it came from.</p>
+    </div>
+    <div class="shot"><img src="design-preview/02-result.png" alt="Result card with score ring and findings"></div>
+  </div>
+
+  <div class="decision">
+    <div>
+      <h3>Every flag has a severity and a reason</h3>
+      <p>Each finding shows a severity badge, a short title, then the evidence, so the eye goes to what matters first.</p>
+      <div class="badges"><span class="badge b-c">Critical</span><span class="badge b-r">Review</span><span class="badge b-n">Note</span></div>
+      <p>Colour is never the only signal: every badge carries a word.</p>
+      <h3 style="margin-top:28px">Suggestions need an explicit decision</h3>
+      <p>Replacements are never applied automatically. Each card shows the original, the proposed replacement on mint, the reason, and <b>Accept</b> / <b>Reject</b>. Only accepted changes reach the revised text.</p>
+      <p>When a pattern can't be fixed by a simple replacement, the card says <b>Rephrase manually</b> instead of guessing.</p>
+    </div>
+    <div class="shot"><img src="design-preview/03-suggestions.png" alt="Suggestions screen with Accept and Reject buttons"></div>
+  </div>
+
+  <div class="decision">
+    <div>
+      <h3>Arabic as a first-class language</h3>
+      <ul class="list">
+        <li>Arabic fields are right-to-left and right-aligned; English fields stay left-to-right on the same screen.</li>
+        <li>The language label is written in Arabic: <span class="ar">العربية</span>.</li>
+        <li>Glossary terms match through Arabic normalization: «<span class="ar">إعدادات</span>» = «<span class="ar">بالإعدادات</span>» = «<span class="ar">الإعدادات</span>».</li>
+        <li>Arabic-Indic digits <span class="ar">٠-٩</span> count as the same numbers as 0-9.</li>
+      </ul>
+      <h3 style="margin-top:28px">Privacy where the decision happens</h3>
+      <p>All checks run on the device, including the Arabic NLP. That is stated right under the Analyze button, where the reviewer decides to paste text, not only on a settings page.</p>
+    </div>
+    <div class="shot"><img src="design-preview/01-analyze.png" alt="Analyze screen with English source and right-to-left Arabic target"></div>
+  </div>
+</div></section>
+
+<section id="visual"><div class="wrap">
+  <div class="num">06 · Visual design</div>
+  <h2>A calm, editorial system for long review sessions</h2>
+  <div class="swatches">
+    <div class="sw"><div style="background:#0D594D"></div><p><b>Forest</b>#0D594D · actions</p></div>
+    <div class="sw"><div style="background:#DBF0E6"></div><p><b>Mint</b>#DBF0E6 · secondary</p></div>
+    <div class="sw"><div style="background:#F6F8F5"></div><p><b>Canvas</b>#F6F8F5 · background</p></div>
+    <div class="sw"><div style="background:#142630"></div><p><b>Ink</b>#142630 · text</p></div>
+    <div class="sw"><div style="background:#647575"></div><p><b>Muted</b>#647575 · secondary text</p></div>
+    <div class="sw"><div style="background:#E0E8E0"></div><p><b>Line</b>#E0E8E0 · borders</p></div>
+  </div>
+  <div class="grid g3" style="margin-top:22px">
+    <div class="card"><div class="k">Colour</div><p>Green reads as "checked" without the alarm of red, which is kept for critical findings only.</p></div>
+    <div class="card"><div class="k">Structure</div><p>Cards group each step, and numbered eyebrows ("01 · SOURCE", "02 · LOCALIZED VERSION") make the screen read top to bottom like the workflow.</p></div>
+    <div class="card"><div class="k">Icon</div><p>Two speech bubbles, a Latin <b>A</b> and an Arabic <span class="ar">ع</span>, with a check badge: a translation that was reviewed.</p></div>
+  </div>
+  <p class="muted narrow" style="margin-top:22px">In <a href="https://www.figma.com/design/idQCoNNtCkRK26dG9iidO2">Figma</a>, colours are variables and buttons, tab items, the status bar and finding rows are components, so all six screens stay consistent.</p>
+  <div class="screens">
+    <figure><img src="design-preview/01-analyze.png" alt="Analyze">Analyze</figure>
+    <figure><img src="design-preview/02-result.png" alt="Result">Result</figure>
+    <figure><img src="design-preview/03-suggestions.png" alt="Suggestions">Suggestions</figure>
+    <figure><img src="design-preview/04-glossary.png" alt="Glossary">Glossary</figure>
+    <figure><img src="design-preview/05-history.png" alt="History">History</figure>
+    <figure><img src="design-preview/06-about.png" alt="About">About</figure>
+  </div>
+</div></section>
+
+<section id="iterations"><div class="wrap">
+  <div class="num">07 · Iterations</div>
+  <h2>What changed, and why</h2>
+  <p class="muted narrow">Real changes made while building and testing the app.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What I saw</th><th>Why it mattered</th><th>What I changed</th></tr></thead>
+    <tbody>
+      <tr><td>The glossary check flagged «<span class="ar">إعدادات</span>» as missing when the glossary said «<span class="ar">الإعدادات</span>».</td><td>False alarms teach reviewers to ignore the tool.</td><td>Arabic normalization (tashkeel, hamza forms, taa marbuta, the definite article, attached prepositions) before matching.</td></tr>
+      <tr><td>In Swift Playgrounds on iPad, the app closed when <em>Analyze text</em> was pressed.</td><td>A crash on the main action breaks trust immediately.</td><td>Changed how the result summary is rendered, and added an automated UI test that taps <em>Sample</em> → <em>Analyze text</em> on iPhone and iPad on every change.</td></tr>
+      <tr><td>In the design file, findings that mixed Arabic and English in one line read in a confusing order.</td><td>Bidirectional text is hard to scan.</td><td>Rewrote the copy to keep Arabic snippets short and quoted «<span class="ar">…</span>» inside English sentences.</td></tr>
+      <tr><td>In the web version, tags from translation files were counted as English letters, so correct Arabic was flagged as "non-Arabic".</td><td>Another false alarm.</td><td>Tags are ignored by the script, length and number checks, but still compared by the placeholder check.</td></tr>
+      <tr><td>Early screen images were design previews, not device screenshots.</td><td>A portfolio should show what really runs.</td><td>Added a real iPad screenshot and labelled previews clearly.</td></tr>
+    </tbody>
+  </table></div>
+  <figure style="margin-top:36px">
+    <img src="img/ipad-analyze.png" alt="LinguAlyzer running on iPad" style="border-radius:18px;border:1px solid var(--line)">
+    <figcaption class="muted" style="font-size:14px;margin-top:8px">LinguAlyzer running on iPad (real device screenshot).</figcaption>
+  </figure>
+</div></section>
+
+<section id="next"><div class="wrap">
+  <div class="num">08 · What's next &amp; what I learned</div>
+  <h2>Testing with translators comes next</h2>
+  <div class="grid g2" style="gap:40px">
+    <div>
+      <h3>Next</h3>
+      <ul class="list next">
+        <li><b>Usability testing with translators</b> <span class="tag">Planned</span><br><span class="muted">3–5 reviewers each review the same 10 strings with and without the app; measure issues found and time taken, and note where wording or flags were confusing.</span></li>
+        <li><b>Arabic interface</b>, right-to-left throughout.</li>
+        <li><b>Dark mode and accessibility</b>: VoiceOver labels for findings and the score ring, Dynamic Type.</li>
+        <li><b>iPad layout</b>: source and target side by side.</li>
+        <li><b>Highlight problems in place</b>, inside the text.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What I learned</h3>
+      <div class="card" style="margin-top:12px"><p><b>Wording is part of the design.</b> "Screening indicator" vs "quality score" changes how much a reviewer relies on the number.</p></div>
+      <div class="card" style="margin-top:12px"><p><b>False alarms are a UX problem.</b> Every one makes the next real flag easier to ignore.</p></div>
+      <div class="card" style="margin-top:12px"><p><b>Designing for Arabic means designing for two directions at once</b>: layout, alignment and mixed-language copy all need deliberate decisions.</p></div>
+    </div>
+  </div>
+</div></section>
+
+</main>
+
+<footer><div class="wrap">
+  <div><b style="color:#fff">Shahad Almutairi</b> · Applied Linguist · Arabic NLP · Localization</div>
+  <div class="links">
+    <a href="https://github.com/ShahadA-lmutairi/LinguAlyzer-iOS">iOS code</a>
+    <a href="https://github.com/ShahadA-lmutairi/LinguAlyzer">Web app &amp; research</a>
+    <a href="https://www.figma.com/design/idQCoNNtCkRK26dG9iidO2">Figma</a>
+    <a href="https://www.linkedin.com/in/shahad-almutairi-pmp%C2%AE-cgs%C2%AE-cdmp%E2%84%A2-90832518a">LinkedIn</a>
+  </div>
+</div></footer>
+
+</body>
+</html>
