@@ -440,6 +440,13 @@ final class LinguAlyzerStore: ObservableObject {
         ]
         glossary = Self.load([GlossaryTerm].self, key: "lingualyzer.glossary") ?? defaults
         history = Self.load([Review].self, key: "lingualyzer.history") ?? []
+
+        // Demo mode (used only to record the README demo): start with a translation
+        // that has a few typical problems, so every screen has something to show.
+        if ProcessInfo.processInfo.environment["LINGUALYZER_DEMO"] == "1" {
+            source = "Your files were backed up. Tap Continue to review the 3 new items."
+            target = "تم نسخ ملفاتك احتياطيًا بواسطة التطبيق. اضغط متابعة, لمراجعة العناصر الجديدة."
+        }
     }
 
     var canAnalyze: Bool {
@@ -533,25 +540,51 @@ struct Eyebrow: View {
     }
 }
 
+// Buttons use Liquid Glass on iOS 26 (Apple's guidance: glass for controls, not content).
+// Older iOS versions, and compilers without the iOS 26 SDK, keep the solid style.
 struct PrimaryButtonStyle: ButtonStyle {
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let label = configuration.label
             .font(.headline)
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(Theme.forest.opacity(configuration.isPressed ? 0.8 : 1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            label
+                .glassEffect(.regular.tint(Theme.forest).interactive(), in: shape)
+                .opacity(configuration.isPressed ? 0.85 : 1)
+        } else {
+            label.background(Theme.forest.opacity(configuration.isPressed ? 0.8 : 1), in: shape)
+        }
+        #else
+        label.background(Theme.forest.opacity(configuration.isPressed ? 0.8 : 1), in: shape)
+        #endif
     }
 }
 
 struct SecondaryButtonStyle: ButtonStyle {
+    @ViewBuilder
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let label = configuration.label
             .font(.subheadline.weight(.semibold))
             .foregroundColor(Theme.forest)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(Theme.mint.opacity(configuration.isPressed ? 0.7 : 1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            label
+                .glassEffect(.regular.tint(Theme.mint.opacity(0.6)).interactive(), in: shape)
+                .opacity(configuration.isPressed ? 0.85 : 1)
+        } else {
+            label.background(Theme.mint.opacity(configuration.isPressed ? 0.7 : 1), in: shape)
+        }
+        #else
+        label.background(Theme.mint.opacity(configuration.isPressed ? 0.7 : 1), in: shape)
+        #endif
     }
 }
 
