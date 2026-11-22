@@ -18,7 +18,7 @@ A review companion for English → Arabic localization, built for iPhone and iPa
 [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer) ·
 [How the checks work](docs/HOW_IT_WORKS.md) ·
 [Design notes](docs/DESIGN.md) ·
-[UX/UI case study](docs/CASE_STUDY.md) ·
+[**UX/UI case study**](https://shahada-lmutairi.github.io/LinguAlyzer-iOS/) ·
 [Figma design](https://www.figma.com/design/idQCoNNtCkRK26dG9iidO2)
 
 </div>
