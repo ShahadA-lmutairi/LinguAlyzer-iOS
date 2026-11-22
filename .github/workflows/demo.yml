@@ -1,4 +1,4 @@
-name: iOS 26 tests and demo recording
+name: iOS 26 tests (and demo recording on manual runs)
 
 on:
   pull_request:
@@ -51,6 +51,7 @@ jobs:
             -destination "id=$UDID" -derivedDataPath build | tail -40
 
       - name: Record the demo
+        if: github.event_name == 'workflow_dispatch'
         run: |
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
@@ -69,11 +70,13 @@ jobs:
           ls -la demo.mp4
 
       - name: Make the GIF
+        if: github.event_name == 'workflow_dispatch'
         run: |
           ffmpeg -y -i demo.mp4 -vf "fps=12,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" -loop 0 demo.gif
           ls -la demo.gif
 
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: demo
           path: |
@@ -81,6 +84,7 @@ jobs:
             demo.gif
 
       - name: Publish the recording to the demo-assets branch
+        if: github.event_name == 'workflow_dispatch'
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
