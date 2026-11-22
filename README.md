@@ -39,6 +39,14 @@ It started as a [Python project](https://github.com/ShahadA-lmutairi/LinguAlyzer
   <sub><i>The Analyze screen running on iPad (real device screenshot). Click to open full size.</i></sub>
 </div>
 
+## Demo
+
+<div align="center">
+  <img src="docs/img/demo.gif" width="300" alt="Demo: analyzing a translation, reviewing suggestions, and opening the glossary on iOS 26">
+  <br>
+  <sub><i>Recorded automatically on an iOS 26 iPhone simulator: analyze a translation, accept a suggestion, open the glossary.</i></sub>
+</div>
+
 ## Features
 
 | Check | What it looks for |

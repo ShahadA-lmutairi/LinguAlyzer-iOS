@@ -1,0 +1,97 @@
+name: iOS 26 tests (and demo recording on manual runs)
+
+on:
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "ci/**"
+      - ".github/workflows/demo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ios26:
+    name: iOS 26 (Liquid Glass) tests and demo GIF
+    runs-on: macos-26
+    env:
+      APP_SWIFT_VERSION: "5.0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: |
+          xcodebuild -version
+          brew install xcodegen ffmpeg
+          echo "APP_SOURCES=$GITHUB_WORKSPACE/Sources" >> "$GITHUB_ENV"
+
+      - name: Generate project and pick an iPhone simulator
+        run: |
+          cd ci && xcodegen generate
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devs = [d for rt, ds in json.load(sys.stdin)["devices"].items() if "iOS" in rt for d in ds]
+          pick = next(d for d in devs if d["name"].startswith("iPhone") and "Pro" in d["name"] and "Max" not in d["name"])
+          print(pick["udid"]); print(pick["name"], file=sys.stderr)')
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          cd ci
+          set -o pipefail
+          xcodebuild build-for-testing -project LinguAlyzer.xcodeproj -scheme LinguAlyzer \
+            -destination "id=$UDID" -derivedDataPath build | tail -20
+
+      - name: Run unit and UI tests on iOS 26
+        run: |
+          cd ci
+          set -o pipefail
+          xcodebuild test-without-building -project LinguAlyzer.xcodeproj -scheme LinguAlyzer \
+            -destination "id=$UDID" -derivedDataPath build | tail -40
+
+      - name: Record the demo
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance light
+          xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularBars 4
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force demo.mp4 &
+          REC=$!
+          sleep 2
+          cd ci
+          TEST_RUNNER_RECORD_DEMO=1 xcodebuild test-without-building -project LinguAlyzer.xcodeproj -scheme LinguAlyzer \
+            -destination "id=$UDID" -derivedDataPath build \
+            -only-testing:LinguAlyzerUITests/DemoUITests | tail -20
+          cd ..
+          kill -INT $REC
+          wait $REC || true
+          ls -la demo.mp4
+
+      - name: Make the GIF
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          ffmpeg -y -i demo.mp4 -vf "fps=12,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" -loop 0 demo.gif
+          ls -la demo.gif
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          name: demo
+          path: |
+            demo.mp4
+            demo.gif
+
+      - name: Publish the recording to the demo-assets branch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pub" && cp demo.gif demo.mp4 "$RUNNER_TEMP/pub/"
+          cd "$RUNNER_TEMP/pub"
+          git init -q && git checkout -q -b demo-assets
+          git add demo.gif demo.mp4
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Demo recording for ${{ github.event.pull_request.head.sha || github.sha }}"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}" demo-assets
